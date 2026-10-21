@@ -1,0 +1,14 @@
+{
+  "name": "alingsas-kommun/vastsverige-events",
+  "description": "Imports Västsverige events into Event Manager posts.",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "VastsverigeEvents\\": "src/"
+    }
+  }
+}
