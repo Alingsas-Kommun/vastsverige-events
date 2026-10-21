@@ -1,0 +1,1296 @@
+{
+ "576633": {
+  "FacebookLink": "https://www.facebook.com/restaurangskaal",
+  "InstagramLink": "https://www.instagram.com/restaurang_skaal/",
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-02-24T12:59:09+01:00",
+  "Modified": "2026-02-24T15:52:55+01:00",
+  "AllImages": [
+   {
+    "ID": 12150929,
+    "Path": "https://www.vastsverige.com/contentassets/e9cf67ffa6014fd28a6226d128be6c7e/namnlos-27.jpeg?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    194,
+    195,
+    73,
+    0
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Restaurang Skåål",
+   "Street": "Bryggaregatan 2, 441 30 Alingsås, Sverige",
+   "City": "Alingsås",
+   "Phone": "+46 322 12727",
+   "Email": "info@restaurangskaal.se",
+   "Website": "http://www.restaurangskaal.se/quiz",
+   "BookingLink": "http://www.restaurangskaal.se/quiz"
+  },
+  "Type": "Event",
+  "IsWorld": false,
+  "Id": 576633,
+  "Heading": "Quiz på Skåål – varje torsdag!",
+  "Description": "<p>På torsdagar kl. 19 är det Quiz på Restaurang Skåål i Estrad, det är sedan gammalt. Quizmaster Jocke G bjuder på musikalisk frågesport som förgyller vilken torsdag som helst. Man får vara upp till sex personer i varje lag. Quizmastern delar ut tävlingsformulär, pennor och en liten påse som deltag",
+  "City": "Alingsås",
+  "Start": "2026-02-26T19:00:00+01:00",
+  "End": "2026-12-17T22:00:00+01:00",
+  "Url": "/alingsas/evenemang/torsdagsquiz-pa-skaal/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/e9cf67ffa6014fd28a6226d128be6c7e/namnlos-27.jpeg?w=720&h=525&m=Crop",
+   "Alt": "Quizmaster Jocke G, torsdagar på Restaurang Skåål"
+  },
+  "Tagline": "Välkommen på torsdagsquiz på Skåål – den perfekta AW:n!",
+  "Position": {
+   "lat": 57.927671,
+   "lng": 12.5341702
+  },
+  "Dates": [
+   {
+    "Date": "2026-02-26T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-03-05T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-03-12T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-03-19T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-03-26T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-04-02T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-04-09T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-04-16T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-04-23T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-04-30T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-05-07T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-05-14T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-05-21T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-05-28T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-06-04T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-06-11T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-06-18T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-06-25T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-07-02T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-07-09T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-07-16T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-07-23T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-07-30T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-08-06T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-08-13T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-08-20T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-08-27T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-03T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-10T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-17T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-24T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-10-01T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-10-08T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-10-15T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-10-22T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-10-29T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-11-05T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-11-12T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-11-19T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-11-26T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-12-03T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-12-10T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-12-17T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "19:00",
+      "End": "22:00"
+     }
+    ]
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "669269": {
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-09-25T09:23:38+02:00",
+  "Modified": "2026-09-29T14:23:28+02:00",
+  "AllImages": [
+   {
+    "ID": 14725632,
+    "Path": "https://www.vastsverige.com/contentassets/d9d4ac4099954903be0ae73b6b6ecd1a/prisma_alingsas_skarm_1920x10802x.png?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    187
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Estrad Alingsås",
+   "Street": "Bryggaregatan 2, 441 30 Alingsås, Sverige",
+   "City": "Alingsås",
+   "Phone": "+46 322 644852",
+   "Email": "info@estradalingsas.se",
+   "Website": "https://estradalingsas.se/kalender/goteborg-film-festival/",
+   "BookingLink": "https://www.tickettailor.com/events/estradialingss/2406532"
+  },
+  "Type": "Event",
+  "IsWorld": false,
+  "Id": 669269,
+  "Heading": "Göteborgs Film Festival: Prisma",
+  "Description": "<p>Under en vecka visas ett varierat program med både långfilmer och noggrant utvalda kortfilmspaket. Samtidigt pågår Lights in Alingsås, vilket ger dig som besökare en unik möjlighet att kombinera film med stadens magiska ljusupplevelser- en helhetsaktivitet som gör höstlovet extra minnesvärt!</p>\n",
+  "City": "Alingsås",
+  "Start": "2026-10-25T10:00:00+01:00",
+  "End": "2026-10-30T19:00:00+01:00",
+  "Url": "/alingsas/evenemang/goteborg-film-festival/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/d9d4ac4099954903be0ae73b6b6ecd1a/prisma_alingsas_skarm_1920x10802x.png?w=720&h=525&m=Crop",
+   "Alt": "Göteborgs Film Festival 25-30 okt 2026 på Estrad"
+  },
+  "Tagline": " Ett varierat program med både långfilmer och noggrant utvalda kortfilmspaket!",
+  "Position": {
+   "lat": 57.927671,
+   "lng": 12.5341702
+  },
+  "Dates": [
+   {
+    "Date": "2026-09-25T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "09:00",
+      "End": "19:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-26T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "09:00",
+      "End": "19:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-27T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "09:00",
+      "End": "19:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-28T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "09:00",
+      "End": "19:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-29T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "09:00",
+      "End": "19:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-09-30T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "09:00",
+      "End": "19:00"
+     }
+    ]
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "615570": {
+  "FacebookLink": "https://www.facebook.com/lightsinalingsas/",
+  "InstagramLink": "https://www.instagram.com/lightsinalingsas/",
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-05-19T16:40:25+02:00",
+  "Modified": "2026-09-18T09:32:49+02:00",
+  "AllImages": [
+   {
+    "ID": 13200434,
+    "Path": "https://www.vastsverige.com/contentassets/ace7eba05dae425d967f470b40fe0b4e/temabild-press.png?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    186,
+    189,
+    73,
+    0
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Alingsås Energi AB",
+   "Street": "Södra Strömgatan 6, 441 33 Alingsås, Sverige",
+   "City": "Alingsås",
+   "Phone": "+46 322617617",
+   "Email": "lights@alingsasenergi.se",
+   "Website": "https://www.lightsinalingsas.se/",
+   "BookingLink": "https://billetto.se/users/lights-in-alingsas-2026"
+  },
+  "Type": "Event",
+  "IsWorld": true,
+  "Tags": [
+   "ljustrv"
+  ],
+  "Id": 615570,
+  "Heading": "Lights in Alingsås 2026",
+  "Description": "<p class=\"MsoNormal\"><span style=\"mso-fareast-language: EN-US;\">Den 2 oktober inviger Alingsås Energi den 27:e upplagan av Lights in Alingsås på temat <em>Stories of Love</em>. Temat handlar om kärlek i alla dess former. Allt från den stora episka kärleken som vi läser om i böcker, till kärleken man",
+  "City": "Alingsås",
+  "Start": "2026-10-02T19:00:00+02:00",
+  "End": "2026-11-01T23:55:00+01:00",
+  "Url": "/alingsas/evenemang/lights-in-alingsas-2026/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/ace7eba05dae425d967f470b40fe0b4e/temabild-press.png?w=720&h=525&m=Crop",
+   "Alt": "Temabild för Lights in Alingsås 2026"
+  },
+  "Tagline": "Ett unikt ljusevenemang i centrala Alingsås",
+  "Position": {
+   "lat": 57.9303517,
+   "lng": 12.528091
+  },
+  "Dates": [
+   {
+    "Date": "2026-10-02T19:00:00+02:00",
+    "ClearCalendar": false
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "666144": {
+  "FacebookLink": "https://www.facebook.com/AlingsasKonstakningsklubb/",
+  "InstagramLink": "https://www.instagram.com/alingsaskk",
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-09-18T09:46:52+02:00",
+  "Modified": "2026-09-21T10:49:41+02:00",
+  "AllImages": [
+   {
+    "ID": 14678713,
+    "Path": "https://www.vastsverige.com/contentassets/6b8b059d7e624cd18f683588242e4c46/a3-affisch-202526-affisch-a3-staende.png?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    197
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Alingsås Konståkningsklubb",
+   "Street": "Nolhagagatan 10B, 441 55 Alingsås, Sweden",
+   "City": "Alingsås",
+   "Phone": "+46 735 134923",
+   "Email": "show@alingsaskk.se",
+   "Website": "http://www.alingsaskk.se",
+   "BookingLink": "https://billetto.se/e/jul-pa-is-en-magisk-resa-genom-julen-biljetter-1910833?bref=eyJzIjoib3JnYW5pc2VyIiwibSI6InNoYXJlIiwiYyI6Im1hbmFnZV92aXNpdCIsImNvIjoiMSIsInQiOjE3ODk3MTIyNDJ9"
+  },
+  "Type": "Event",
+  "IsWorld": false,
+  "Tags": [
+   "jultrv",
+   "teatershowtrv"
+  ],
+  "Id": 666144,
+  "Heading": "Jul på is 2026",
+  "Description": "<p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">Välkommen till årets Jul på is – en förtrollande resa fylld av julglädje, vintermagi och fantastiska möten!</span></p>\n<p><span style=\"background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);\">I årets föreställning f",
+  "City": "Alingsås",
+  "Start": "2026-11-28T12:00:00+01:00",
+  "End": "2026-11-29T16:00:00+01:00",
+  "Url": "/alingsas/evenemang/jul-pa-is-2026/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/6b8b059d7e624cd18f683588242e4c46/a3-affisch-202526-affisch-a3-staende.png?w=720&h=525&m=Crop",
+   "Alt": "Jul på is 2026 - En magisk resa genom julen"
+  },
+  "Tagline": "En magisk resa genom julen på is",
+  "Position": {
+   "lat": 57.9318275,
+   "lng": 12.5219497
+  },
+  "Dates": [
+   {
+    "Date": "2026-11-28T00:00:00+01:00",
+    "ClearCalendar": false,
+    "EndDate": "2026-11-29T00:00:00+01:00",
+    "Times": [
+     {
+      "Start": "16:00",
+      "End": "18:00"
+     }
+    ],
+    "ExcludeWeekDay": [
+     5
+    ]
+   },
+   {
+    "Date": "2026-11-29T00:00:00+01:00",
+    "ClearCalendar": false,
+    "EndDate": "2026-11-29T00:00:00+01:00",
+    "Times": [
+     {
+      "Start": "16:00",
+      "End": "18:00"
+     }
+    ],
+    "ExcludeWeekDay": [
+     5
+    ]
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "672541": {
+  "RelatedObjects": [
+   188563
+  ],
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-10-02T09:20:01+02:00",
+  "Modified": "2026-10-02T09:27:18+02:00",
+  "AllImages": [
+   {
+    "ID": 10032119,
+    "Path": "https://www.vastsverige.com/contentassets/6209ca6aeae54dcca6269e58aec86da9/tomtetag-2.jpg?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    199,
+    189,
+    73,
+    0
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Anten - Gräfsnäs Järnväg En resa i tiden – Västgötabanan",
+   "Street": "Antens stationsväg 7, 441 91 Alingsås, Sverige",
+   "City": "Anten Gräfsnäs",
+   "Phone": ".",
+   "Email": "tomten@agj.ne",
+   "Website": "https://www.agj.net/res-med-agj/tomtetag-2026/",
+   "BookingLink": "https://www.butiken.agj.net/"
+  },
+  "Type": "Event",
+  "IsWorld": true,
+  "Tags": [
+   "jultrv"
+  ],
+  "Id": 672541,
+  "Heading": "Tomtetåg med Anten–Gräfsnäs Järnväg",
+  "Description": "<p><span style=\"background-color: rgb(252, 252, 252); color: rgb(13, 13, 13);\">När vintermörkret faller lyser marschaller, lyktor och eldar upp perrongen i Anten. Kliv ombord på den julpyntade rälsbussen och följ med på en resa till Tomtebo, där Tomten väntar på besök.</span></p><p><span style=\"back",
+  "City": "Anten Gräfsnäs",
+  "Start": "2026-11-21T10:00:00+01:00",
+  "End": "2026-12-12T19:00:00+01:00",
+  "Url": "/alingsas/evenemang/tomtetag-med-antengrafsnas-jarnvag/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/6209ca6aeae54dcca6269e58aec86da9/tomtetag-2.jpg?w=720&h=525&m=Crop",
+   "Alt": "Tomtetåget"
+  },
+  "Tagline": "Hoppa ombord på det julpyntade Tomtetåget och åk till Tomten i Tomtebo.",
+  "Position": {
+   "lat": 57.9875035,
+   "lng": 12.4409351
+  },
+  "Dates": [
+   {
+    "Date": "2026-11-21T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     },
+     {}
+    ]
+   },
+   {
+    "Date": "2026-11-28T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     },
+     {}
+    ]
+   },
+   {
+    "Date": "2026-12-05T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     },
+     {}
+    ]
+   },
+   {
+    "Date": "2026-12-12T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     },
+     {}
+    ]
+   },
+   {
+    "Date": "2026-11-22T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-11-29T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     }
+    ]
+   },
+   {
+    "Date": "2026-12-06T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": [
+     {
+      "Start": "10:00"
+     }
+    ]
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "635432": {
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-06-25T09:05:48+02:00",
+  "Modified": "2026-06-25T09:17:59+02:00",
+  "AllImages": [
+   {
+    "ID": 13792093,
+    "Path": "https://www.vastsverige.com/contentassets/2594f8e4572a4e27b1774e05f249bac5/evenemangsbilder-hemsida-2.png?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    198
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Gerdskens BK",
+   "Street": "Bryggaregatan 2, 441 30 Alingsås, Sverige",
+   "City": "Alingsås",
+   "Phone": "+46 322 15605",
+   "Email": "info@kycklingcupen.se",
+   "Website": "https://www.kycklingcupen.se/",
+   "BookingLink": "https://estradalingsas.se/kalender/kycklingcupen-2026-2/"
+  },
+  "Type": "Event",
+  "IsWorld": false,
+  "Id": 635432,
+  "Heading": "Kycklingcupen",
+  "Description": "<div>Den klassiska inomhusturneringen med futsal-regler som samlar alla ungdomsklubbar under två helger efter utomhussäsongen. </div>\n<div> </div>\n<div>Gruppspelsmatcherna spelas på flera spelplatser där slutspelsmatcherna avgörs i Estrad Alingsås den sista helgen i turneringen.</div>\n<div> </div>\n<",
+  "City": "Alingsås",
+  "Start": "2026-10-31T08:00:00+01:00",
+  "End": "2026-11-01T18:00:00+01:00",
+  "Url": "/alingsas/evenemang/kycklingcupen/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/2594f8e4572a4e27b1774e05f249bac5/evenemangsbilder-hemsida-2.png?w=720&h=525&m=Crop",
+   "Alt": "Fotbollsspelande kyckling mot blåvit bakgrund."
+  },
+  "Tagline": "Kycklingcupen 2026 samlar lag och publik för en helg fylld av energi och gemenskap!",
+  "Position": {
+   "lat": 57.92908249999999,
+   "lng": 12.5340384
+  },
+  "Dates": [
+   {
+    "Date": "2026-10-31T08:00:00+01:00",
+    "ClearCalendar": false
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "246821": {
+  "RelatedObjects": [
+   38710,
+   40231,
+   38713,
+   38711
+  ],
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2018-10-19T15:45:00+02:00",
+  "Modified": "2026-04-22T10:49:54+02:00",
+  "AllImages": [
+   {
+    "ID": 488023,
+    "Path": "https://www.vastsverige.com/globalassets/migratedresources/.vastsverige-mediabank/cafe-viola_37a5252--photo-cred-monika-manowska_resize_798x1197_crop_550x1200_-1_62.jpg?w=720&h=525&m=Crop&f=webp&q=75"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    189,
+    73,
+    0,
+    194
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Alingsås Turismenhet",
+   "City": "Alingsås",
+   "Phone": "+46 322 616200",
+   "Email": "turistinfo@alingsas.se",
+   "Website": "https://www.vastsverige.com/en/alingsas/",
+   "BookingLink": "https://alingsaskh.actorsmartbook.se/"
+  },
+  "Type": "Event",
+  "IsWorld": true,
+  "Tags": [
+   "guidningtrv",
+   "mattrv",
+   "fikatrv"
+  ],
+  "Id": 246821,
+  "Heading": "Fikavandringen",
+  "Description": "<h3>Fikavandring med fikasmakning - en unik guidad tur</h3>\n<p>Följ med på den guidade fikavandringen om Kaféstaden Alingsås långa bagerihistoria. Turen tar dig med genom stadens kullerstensgator och mysiga innergårdar, till anrika kaféer med provsmakning av olika klassiska bakverk. Guiden berättar ",
+  "City": " Alingsås",
+  "Start": "2026-05-23T00:00:00+02:00",
+  "End": "2026-12-19T23:00:00+01:00",
+  "Url": "/alingsas/evenemang/fikavandring/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/globalassets/migratedresources/.vastsverige-mediabank/cafe-viola_37a5252--photo-cred-monika-manowska_resize_798x1197_crop_550x1200_-1_62.jpg?w=720&h=525&m=Crop&f=webp&q=75",
+   "Alt": ""
+  },
+  "Tagline": "Unik tur där historia blandas med fikasmakning",
+  "Position": {
+   "lat": 57.9285732,
+   "lng": 12.5327027
+  },
+  "Dates": [
+   {
+    "Date": "2026-05-23T00:00:00+02:00",
+    "ClearCalendar": false
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "634478": {
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-06-23T14:02:38+02:00",
+  "Modified": "2026-10-07T09:15:03+02:00",
+  "AllImages": [
+   {
+    "ID": 13758420,
+    "Path": "https://www.vastsverige.com/contentassets/f9aaa86b11f8455f8f77509db027aad0/ahk-kalenderbild.jpg?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    198
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Alingsås Handbollklubb",
+   "Street": "Bryggaregatan 2, 441 30 Alingsås, Sverige",
+   "City": "Alingsås",
+   "Phone": "+46 322 643381",
+   "Email": "lena.lindqvist@ahk.nu",
+   "Website": "https://estradalingsas.se/kalender/",
+   "BookingLink": "https://estradalingsas.se/kalender/"
+  },
+  "Type": "Event",
+  "IsWorld": false,
+  "Id": 634478,
+  "Heading": "Handbollsligan med Alingsås HK!",
+  "Description": "<p>Handboll ska upplevas på plats. Känn pulsen i Estrad Arena under årets säsong av Handbollsligan. Aktuella matcher, mer information och biljetter hittar på som alltid på estradalingsas.se</p>\n<div><span style=\"font-family: Aptos,sans-serif; font-size: medium;\">Tider:<br />4/10 18:30-20:00</span></",
+  "City": "Alingsås",
+  "Start": "2026-10-04T17:00:00+02:00",
+  "End": "2027-03-17T20:30:00+01:00",
+  "Url": "/alingsas/evenemang/handbollsligan/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/f9aaa86b11f8455f8f77509db027aad0/ahk-kalenderbild.jpg?w=720&h=525&m=Crop",
+   "Alt": "Alingsås HK logotyp mot en blå vågig bakgrund"
+  },
+  "Tagline": "Upplev elithandboll och pulsen i Handbollsligan i Estrad Arena!",
+  "Position": {
+   "lat": 57.92908249999999,
+   "lng": 12.5340384
+  },
+  "Dates": [
+   {
+    "Date": "2026-10-04T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-16T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-25T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-29T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-11-15T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-11-29T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-12-13T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-12-20T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-12-30T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2027-02-07T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2027-02-12T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2027-03-02T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2027-03-17T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ },
+ "660052": {
+  "FacebookLink": "https://www.facebook.com/KvKlockansAteljeerGalleriButik/",
+  "InstagramLink": "https://www.instagram.com/kvklockansateljeergalleri/#",
+  "OpenHours": "1,2,3,4,5,6,7,8,9,10,11,12",
+  "Created": "2026-09-04T18:58:46+02:00",
+  "Modified": "2026-09-29T14:09:43+02:00",
+  "AllImages": [
+   {
+    "ID": 14588567,
+    "Path": "https://www.vastsverige.com/contentassets/934594bb168c4789a2c092b32ac82d3d/kollage-klockan-26-1mb.jpg?w=720&h=525&m=Crop"
+   }
+  ],
+  "Categories": {
+   "Event": [
+    191
+   ],
+   "Location": [
+    24,
+    22,
+    2
+   ]
+  },
+  "Contact": {
+   "CompanyName": "Kv. Klockans ateljéer och galleri",
+   "Street": "Västra Ringgatan 9, 441 33 Alingsås, Sverige",
+   "City": "ALINGSÅS",
+   "Phone": "+46 707469874",
+   "Email": "artbyninni@outlook.com"
+  },
+  "Type": "Event",
+  "IsWorld": false,
+  "Id": 660052,
+  "Heading": "ÖPPET HUS: Kv klockans Ateljéer och gemensamma galleri",
+  "Description": "<p>2 - 30 Oktober 2026</p><p>Öppettider:</p><p>Galleriet tis-lör kl. 18-21</p><p>Samt öppna ateljéer fredagar och lördagar kl. 18-21</p><p>Välkomna till våra berättelser i skapandet</p><p><br /></p><p>Medverkande:</p><p>Naemi Gustavsson, Elisabeth Hilling</p><p>Pernilla Johansson, Gun Skoglund-Voss<",
+  "City": "ALINGSÅS",
+  "Start": "2026-10-02T18:00:00+02:00",
+  "End": "2026-10-30T21:00:00+01:00",
+  "Url": "/alingsas/evenemang/oppet-hus-kv-klockans-ateljeer/",
+  "Image": {
+   "Path": "https://www.vastsverige.com/contentassets/934594bb168c4789a2c092b32ac82d3d/kollage-klockan-26-1mb.jpg?w=720&h=525&m=Crop",
+   "Alt": "Bild på fasaden till Kv. Klockans ateljéer och galleri i mörkret. "
+  },
+  "Tagline": "Måleri, textil, tryck, sömnad och design",
+  "Position": {
+   "lat": 57.931221,
+   "lng": 12.528267
+  },
+  "Dates": [
+   {
+    "Date": "2026-10-02T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-03T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-06T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-07T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-08T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-09T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-10T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-13T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-14T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-15T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-16T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-17T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-20T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-21T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-22T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-23T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-24T00:00:00+02:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-27T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-28T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-29T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   },
+   {
+    "Date": "2026-10-30T00:00:00+01:00",
+    "ClearCalendar": false,
+    "Times": []
+   }
+  ],
+  "ReccuringEvent": false,
+  "GoogleRating": 0,
+  "GoogleRatingCount": 0,
+  "TrackHitPos": 0
+ }
+}

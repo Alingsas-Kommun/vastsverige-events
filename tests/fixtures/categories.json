@@ -1,0 +1,81 @@
+[
+ {
+  "id": 73,
+  "categories": [
+   {
+    "text": "Båtturer",
+    "id": 254,
+    "categories": null
+   },
+   {
+    "text": "Festival",
+    "id": 186,
+    "categories": null
+   },
+   {
+    "text": "Film",
+    "id": 187,
+    "categories": null
+   },
+   {
+    "text": "Natur och friluftsliv",
+    "id": 188,
+    "categories": null
+   },
+   {
+    "text": "Guidade turer",
+    "id": 189,
+    "categories": null
+   },
+   {
+    "text": "Musik",
+    "id": 195,
+    "categories": null
+   },
+   {
+    "text": "Konst och kultur",
+    "id": 191,
+    "categories": null
+   },
+   {
+    "text": "Kurser och föreläsningar",
+    "id": 192,
+    "categories": null
+   },
+   {
+    "text": "Marknader och loppisar",
+    "id": 193,
+    "categories": null
+   },
+   {
+    "text": "Mat och dryck",
+    "id": 194,
+    "categories": null
+   },
+   {
+    "text": "På scen",
+    "id": 197,
+    "categories": null
+   },
+   {
+    "text": "Sport och hälsa",
+    "id": 198,
+    "categories": null
+   },
+   {
+    "text": "Teknik och motor",
+    "id": 199,
+    "categories": null
+   },
+   {
+    "text": "Utställningar och mässor",
+    "id": 207,
+    "categories": null
+   }
+  ]
+ },
+ {
+  "id": 5,
+  "categories": []
+ }
+]
