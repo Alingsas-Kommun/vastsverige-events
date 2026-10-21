@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace VastsverigeEvents\Cli;
 
 use VastsverigeEvents\Actor;
-use VastsverigeEvents\Import\Importer;
+use VastsverigeEvents\Import\Runner;
 
 /**
  * WP-CLI command for a single import run.
@@ -30,7 +30,10 @@ class ImportCommand
      * : Write at most this many merged events. Skips trashing.
      *
      * [--heading=<text>]
-     * : Only import events whose title contains this text.
+     * : Only import events whose title contains this text. Skips trashing.
+     *
+     * [--allow-mass-trash]
+     * : Trash events missing from the API even when that is more than the safety limit allows.
      *
      * @param list<string>          $args
      * @param array<string, string> $assoc
@@ -46,13 +49,14 @@ class ImportCommand
             $limit = null;
         }
         $heading = isset($assoc['heading']) ? (string) $assoc['heading'] : null;
+        $mass    = (bool) \WP_CLI\Utils\get_flag_value($assoc, 'allow-mass-trash', false);
 
-        $report = (new Importer())->run($limit, $heading);
+        $report = (new Runner())->run($limit, $heading, $mass);
         foreach ($report->messages as $message) {
             \WP_CLI::log($message);
         }
 
-        \WP_CLI::log(sprintf('created=%d updated=%d trashed=%d skipped=%d', $report->created, $report->updated, $report->trashed, $report->skipped));
+        \WP_CLI::log($report->summary());
 
         if (! $report->ok) {
             \WP_CLI::error('Import failed.');

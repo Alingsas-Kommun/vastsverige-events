@@ -4,51 +4,74 @@ declare(strict_types=1);
 
 namespace VastsverigeEvents\Mapping;
 
+use VastsverigeEvents\Import\MergedEvent;
+
 /**
- * Writes one merged event as an Event Manager post.
+ * Stores merged events as Event Manager posts.
  */
-class EventWriter
+class EventWriter implements EventRepository
 {
+    public const META_UID     = '_vastsverige_uid';
+    public const META_SOURCE  = '_vastsverige_source_id';
+    public const META_HASH    = '_vastsverige_hash';
+    public const META_TRASHED = '_vastsverige_trashed';
+
+    private const LIVE_STATUSES = ['publish', 'draft', 'pending', 'private', 'future'];
+
     public function __construct(
         private OrganizerWriter $organizers = new OrganizerWriter(),
         private MediaSideloader $media = new MediaSideloader(),
+        private PostSelector $selector = new PostSelector(),
     ) {
     }
 
-    /**
-     * @param array{
-     *   title: string,
-     *   content: string,
-     *   url: string,
-     *   city: string,
-     *   lat: string,
-     *   lng: string,
-     *   image: string,
-     *   categories: list<string>,
-     *   contact: array<string, mixed>,
-     *   booking: string,
-     *   occasions: list<array<string, mixed>>,
-     *   uid: string,
-     *   sourceIds: list<string>
-     * } $event
-     * @return 'created'|'updated'
-     */
-    public function save(array $event, string $newPostStatus): string
+    public function isAvailable(): bool
     {
-        $postId = $this->findPost($event['sourceIds']);
-        $status = $newPostStatus;
-        $action = 'created';
+        return post_type_exists('event') && function_exists('update_field');
+    }
 
-        if ($postId > 0) {
+    /**
+     * @throws \RuntimeException
+     */
+    public function save(MergedEvent $event, string $newPostStatus): SaveResult
+    {
+        if ($event->sourceIds === []) {
+            throw new \RuntimeException('The event has no source id, so it cannot be matched on later runs.');
+        }
+
+        $choice = $this->selector->choose($this->candidates($event->sourceIds));
+
+        if ($choice->action === PostChoice::SKIP) {
+            return new SaveResult(SaveResult::SKIPPED, ['trashed by an editor, left alone']);
+        }
+
+        foreach ($choice->duplicates as $duplicateId) {
+            $this->releaseDuplicate($duplicateId, $event->sourceIds);
+        }
+
+        $postId   = $choice->postId;
+        $status   = $newPostStatus;
+        $restored = false;
+
+        if ($choice->action === PostChoice::RESTORE) {
+            wp_untrash_post($postId);
+            delete_post_meta($postId, self::META_TRASHED);
+            delete_post_meta($postId, self::META_HASH);
+            $restored = true;
+        } elseif ($choice->action === PostChoice::UPDATE) {
             $current = get_post_status($postId);
-            $status  = ($current !== false && $current !== 'trash') ? $current : $newPostStatus;
-            $action  = 'updated';
+            $status  = $current !== false ? $current : $newPostStatus;
+
+            if ((string) get_post_meta($postId, self::META_HASH, true) === $event->hash()) {
+                $this->writeSourceIds($postId, $event->sourceIds);
+                return new SaveResult(SaveResult::UNCHANGED);
+            }
         }
 
         $postarr = [
             'post_type'    => 'event',
-            'post_title'   => $event['title'],
-            'post_content' => $event['content'],
+            'post_title'   => $event->title,
+            'post_content' => wp_kses_post($event->content),
             'post_status'  => $status,
         ];
         if ($postId > 0) {
@@ -60,34 +83,77 @@ class EventWriter
             throw new \RuntimeException($saved->get_error_message());
         }
 
-        $postId = (int) $saved;
+        $postId   = (int) $saved;
+        $warnings = [];
+
         $this->writeMeta($postId, $event);
         $this->writeFields($postId, $event);
-        $this->writeCategories($postId, $event['categories']);
-        $this->organizers->assign($postId, $event['contact']);
-        $this->writeImage($postId, $event['image'], $event['title']);
+        $this->writeCategories($postId, $event->categories);
+        $this->writeOrganizer($postId, $event->contact, $warnings);
+        $this->writeImage($postId, $event, $warnings);
 
-        return $action;
+        if ($warnings === []) {
+            update_post_meta($postId, self::META_HASH, $event->hash());
+        }
+
+        $action = ($choice->action === PostChoice::CREATE) ? SaveResult::CREATED : SaveResult::UPDATED;
+        if ($restored) {
+            $warnings[] = 'restored from trash';
+        }
+
+        return new SaveResult($action, $warnings);
+    }
+
+    /**
+     * @return array<int, list<string>>
+     */
+    public function managedPosts(): array
+    {
+        $ids = get_posts(
+            [
+                'post_type'      => 'event',
+                'post_status'    => self::LIVE_STATUSES,
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_key'       => self::META_UID,
+            ]
+        );
+
+        $managed = [];
+        foreach ($ids as $postId) {
+            $managed[(int) $postId] = array_map('strval', get_post_meta((int) $postId, self::META_SOURCE, false));
+        }
+
+        return $managed;
+    }
+
+    public function trash(int $postId): void
+    {
+        update_post_meta($postId, self::META_TRASHED, '1');
+        wp_trash_post($postId);
     }
 
     /**
      * @param list<string> $sourceIds
+     * @return list<array{id: int, trashed: bool, byImport: bool}>
      */
-    public function findPost(array $sourceIds): int
+    private function candidates(array $sourceIds): array
     {
         if ($sourceIds === []) {
-            return 0;
+            return [];
         }
 
-        $posts = get_posts(
+        $ids = get_posts(
             [
                 'post_type'      => 'event',
-                'post_status'    => 'any',
-                'posts_per_page' => 1,
+                'post_status'    => array_merge(self::LIVE_STATUSES, ['trash']),
+                'posts_per_page' => -1,
                 'fields'         => 'ids',
+                'orderby'        => 'ID',
+                'order'          => 'ASC',
                 'meta_query'     => [
                     [
-                        'key'     => '_vastsverige_source_id',
+                        'key'     => self::META_SOURCE,
                         'value'   => $sourceIds,
                         'compare' => 'IN',
                     ],
@@ -95,102 +161,142 @@ class EventWriter
             ]
         );
 
-        return isset($posts[0]) ? (int) $posts[0] : 0;
+        return array_map(
+            static fn ($id): array => [
+                'id'       => (int) $id,
+                'trashed'  => get_post_status((int) $id) === 'trash',
+                'byImport' => (string) get_post_meta((int) $id, self::META_TRASHED, true) === '1',
+            ],
+            $ids
+        );
     }
 
     /**
-     * @param array{uid: string, sourceIds: list<string>} $event
+     * Hands source ids over to the post that now owns them, and trashes the post when none are left.
+     *
+     * @param list<string> $claimed
      */
-    private function writeMeta(int $postId, array $event): void
+    private function releaseDuplicate(int $postId, array $claimed): void
     {
-        $uid = (string) get_post_meta($postId, '_vastsverige_uid', true);
-        if ($uid === '') {
-            update_post_meta($postId, '_vastsverige_uid', $event['uid']);
+        $remaining = array_values(array_diff(array_map('strval', get_post_meta($postId, self::META_SOURCE, false)), $claimed));
+
+        if ($remaining === []) {
+            $this->trash($postId);
+            return;
         }
 
-        delete_post_meta($postId, '_vastsverige_source_id');
-        foreach ($event['sourceIds'] as $sourceId) {
-            add_post_meta($postId, '_vastsverige_source_id', $sourceId);
-        }
+        $this->writeSourceIds($postId, $remaining);
+        delete_post_meta($postId, self::META_HASH);
     }
 
     /**
-     * @param array{url: string, city: string, lat: string, lng: string, occasions: list<array<string, mixed>>, booking: string} $event
+     * @param list<string> $sourceIds
      */
-    private function writeFields(int $postId, array $event): void
+    private function writeSourceIds(int $postId, array $sourceIds): void
     {
-        if (! function_exists('update_field')) {
-            throw new \RuntimeException('ACF update_field() is not available.');
+        $stored = array_map('strval', get_post_meta($postId, self::META_SOURCE, false));
+        if ($stored === $sourceIds) {
+            return;
         }
 
-        $rows = $event['occasions'];
-        if ($event['booking'] !== '') {
-            foreach ($rows as $index => $row) {
-                $rows[$index]['url'] = $event['booking'];
-            }
+        delete_post_meta($postId, self::META_SOURCE);
+        foreach ($sourceIds as $sourceId) {
+            add_post_meta($postId, self::META_SOURCE, $sourceId);
+        }
+    }
+
+    private function writeMeta(int $postId, MergedEvent $event): void
+    {
+        if ((string) get_post_meta($postId, self::META_UID, true) === '') {
+            update_post_meta($postId, self::META_UID, $event->uid);
         }
 
-        update_field('occasions', $rows, $postId);
+        $this->writeSourceIds($postId, $event->sourceIds);
+    }
+
+    private function writeFields(int $postId, MergedEvent $event): void
+    {
+        update_field('occasions', $event->occasions, $postId);
         update_field('attendancemode', 'offline', $postId);
-        update_field('url', $event['url'], $postId);
+        update_field('url', $event->url, $postId);
+        update_field('locationName', $event->locationName, $postId);
 
-        if ($event['city'] !== '') {
-            update_field('locationName', $event['city'], $postId);
+        $map = [];
+        if ($event->address !== '') {
+            $map['address'] = $event->address;
         }
-
-        $map = ['address' => $event['city']];
-        if ($event['lat'] !== '' && $event['lng'] !== '') {
-            $map['lat']  = $event['lat'];
-            $map['lng']  = $event['lng'];
+        if ($event->lat !== '' && $event->lng !== '') {
+            $map['lat']  = $event->lat;
+            $map['lng']  = $event->lng;
             $map['zoom'] = 14;
         }
-        update_field('locationAddress', $map, $postId);
+        update_field('locationAddress', $map === [] ? '' : $map, $postId);
     }
 
     /**
-     * @param list<string> $names
+     * @param list<string>|null $names Null leaves the current terms untouched.
      */
-    private function writeCategories(int $postId, array $names): void
+    private function writeCategories(int $postId, ?array $names): void
     {
-        $termIds = [];
-        foreach ($names as $name) {
-            $name = trim($name);
-            if ($name === '') {
-                continue;
-            }
-            $existing = term_exists($name, 'category');
-            if (is_array($existing)) {
-                $termIds[] = (int) $existing['term_id'];
-                continue;
-            }
-            $created = wp_insert_term($name, 'category');
-            if (is_wp_error($created)) {
-                if ($created->get_error_code() === 'term_exists') {
-                    $termIds[] = (int) $created->get_error_data();
-                }
-                continue;
-            }
-            $termIds[] = (int) $created['term_id'];
+        if ($names === null) {
+            return;
         }
 
-        if ($termIds === []) {
-            return;
+        $termIds = [];
+        foreach ($names as $name) {
+            $termId = $this->categoryTerm(trim($name));
+            if ($termId > 0) {
+                $termIds[] = $termId;
+            }
         }
 
         wp_set_object_terms($postId, $termIds, 'category', false);
-        if (function_exists('update_field')) {
-            update_field('category', $termIds, $postId);
+        update_field('category', $termIds, $postId);
+    }
+
+    private function categoryTerm(string $name): int
+    {
+        if ($name === '') {
+            return 0;
+        }
+
+        $existing = term_exists($name, 'category');
+        if (is_array($existing)) {
+            return (int) $existing['term_id'];
+        }
+
+        $created = wp_insert_term($name, 'category');
+        if (is_wp_error($created)) {
+            return $created->get_error_code() === 'term_exists' ? (int) $created->get_error_data() : 0;
+        }
+
+        return (int) $created['term_id'];
+    }
+
+    /**
+     * @param array<string, string> $contact
+     * @param list<string>          $warnings
+     */
+    private function writeOrganizer(int $postId, array $contact, array &$warnings): void
+    {
+        if (! $this->organizers->assign($postId, $contact)) {
+            $warnings[] = 'organization could not be saved';
         }
     }
 
-    private function writeImage(int $postId, string $url, string $title): void
+    /**
+     * @param list<string> $warnings
+     */
+    private function writeImage(int $postId, MergedEvent $event, array &$warnings): void
     {
-        if ($url === '') {
+        if ($event->image === '') {
+            update_field('images', [], $postId);
             return;
         }
 
-        $attachmentId = $this->media->sideload($url, $postId, $title);
-        if ($attachmentId === 0 || ! function_exists('update_field')) {
+        $attachmentId = $this->media->sideload($event->image, $postId, $event->imageAlt);
+        if ($attachmentId === 0) {
+            $warnings[] = 'image could not be downloaded: ' . $event->image;
             return;
         }
 

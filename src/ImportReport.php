@@ -11,6 +11,7 @@ class ImportReport
 {
     public int $created = 0;
     public int $updated = 0;
+    public int $unchanged = 0;
     public int $trashed = 0;
     public int $skipped = 0;
 
@@ -28,5 +29,17 @@ class ImportReport
     {
         $this->ok = false;
         $this->add($message);
+    }
+
+    public function summary(): string
+    {
+        return sprintf(
+            'created=%d updated=%d unchanged=%d trashed=%d skipped=%d',
+            $this->created,
+            $this->updated,
+            $this->unchanged,
+            $this->trashed,
+            $this->skipped
+        );
     }
 }

@@ -8,13 +8,17 @@ use DateTimeImmutable;
 use DateTimeZone;
 
 /**
- * Folds API dates into Event Manager occasion rows.
+ * Folds event moments into Event Manager occasion rows.
  *
- * Weekly series become one byWeek row. The repeater holds at most ten rows.
+ * Runs of at least three dates on the same weekday and clock time, a constant whole number of
+ * weeks apart, become one `byWeek` row. Gaps are counted in calendar days, so a clock change
+ * never breaks a series. The repeater holds at most ten rows.
  */
 class OccasionFolder
 {
     public const MAX_ROWS = 10;
+
+    private const MIN_SERIES = 3;
 
     /** @var array<int, string> */
     private const WEEKDAYS = [
@@ -29,135 +33,183 @@ class OccasionFolder
 
     /**
      * @param list<array{start: DateTimeImmutable, end: DateTimeImmutable}> $dates
-     * @return array{rows: list<array<string, mixed>>, dropped: int}
+     * @param DateTimeImmutable|null                                        $today Reference for ranking dates when rows are dropped.
+     * @return array{rows: list<array<string, mixed>>, dropped: list<string>}
      */
-    public function fold(array $dates): array
+    public function fold(array $dates, ?DateTimeImmutable $today = null): array
+    {
+        $today ??= new DateTimeImmutable('today', new DateTimeZone('Europe/Stockholm'));
+
+        $series = [];
+        $single = [];
+
+        foreach ($this->groupByClock($dates) as $group) {
+            $this->split($group, $series, $single);
+        }
+
+        usort($series, static fn (array $a, array $b): int => strcmp($a['row']['date'], $b['row']['date']));
+        $single = $this->rank($single, $today->format('Y-m-d'));
+
+        $kept    = array_slice($series, 0, self::MAX_ROWS);
+        $room    = self::MAX_ROWS - count($kept);
+        $kept    = array_merge($kept, array_slice($single, 0, max(0, $room)));
+        $dropped = array_merge(array_slice($series, self::MAX_ROWS), array_slice($single, max(0, $room)));
+
+        $rows = array_map(static fn (array $entry): array => $entry['row'], $kept);
+        usort($rows, static fn (array $a, array $b): int => [$a['date'], $a['startTime']] <=> [$b['date'], $b['startTime']]);
+
+        return [
+            'rows'    => $rows,
+            'dropped' => array_map(static fn (array $entry): string => $entry['label'], $dropped),
+        ];
+    }
+
+    /**
+     * Buckets one-day moments by weekday and clock. Multi-day periods bypass weekly folding.
+     *
+     * @param list<array{start: DateTimeImmutable, end: DateTimeImmutable}> $dates
+     * @return list<list<array{day: string, start: DateTimeImmutable, end: DateTimeImmutable}>>
+     */
+    private function groupByClock(array $dates): array
     {
         $groups = [];
+
         foreach ($dates as $date) {
-            $start = $date['start'];
-            $end   = $date['end'];
-            $key   = $start->format('H:i:s') . '|' . $end->format('H:i:s') . '|' . $start->format('N');
-            $groups[$key][] = $date;
-        }
-
-        $weekly = [];
-        $single = [];
-        foreach ($groups as $group) {
-            $series = $this->weeklyRow($group);
-            if ($series !== null) {
-                $weekly[] = $series;
-                continue;
-            }
-            foreach ($group as $date) {
-                $single[] = $this->singleRow($date['start'], $date['end']);
-            }
-        }
-
-        usort($weekly, static fn (array $a, array $b): int => strcmp((string) $a['date'], (string) $b['date']));
-        $single = $this->soonest($single);
-
-        $rows = array_slice($weekly, 0, self::MAX_ROWS);
-        $room = self::MAX_ROWS - count($rows);
-        if ($room > 0) {
-            $rows = array_merge($rows, array_slice($single, 0, $room));
-        }
-
-        $dropped = (count($weekly) + count($single)) - count($rows);
-
-        return ['rows' => $rows, 'dropped' => max(0, $dropped)];
-    }
-
-    /**
-     * @param list<array{start: DateTimeImmutable, end: DateTimeImmutable}> $group
-     * @return array<string, mixed>|null
-     */
-    private function weeklyRow(array $group): ?array
-    {
-        if (count($group) < 3) {
-            return null;
-        }
-
-        usort($group, static fn (array $a, array $b): int => $a['start'] <=> $b['start']);
-
-        $days = [];
-        foreach ($group as $date) {
             $day = $date['start']->format('Y-m-d');
-            $days[$day] = $date;
-        }
-        $unique = array_values($days);
-        if (count($unique) < 3) {
-            return null;
+            $key = $date['start']->format('H:i:s') . '|' . $date['end']->format('H:i:s') . '|' . $date['start']->format('N');
+
+            if ($date['end']->format('Y-m-d') > $day) {
+                $key = 'period|' . $day . '|' . $date['end']->format('c');
+            }
+
+            $groups[$key][$day] = ['day' => $day, 'start' => $date['start'], 'end' => $date['end']];
         }
 
-        $gap = null;
-        for ($i = 1, $count = count($unique); $i < $count; $i++) {
-            $diff = (int) $unique[$i - 1]['start']->diff($unique[$i]['start'])->days;
-            if ($gap === null) {
-                $gap = $diff;
+        return array_map(static function (array $group): array {
+            ksort($group);
+            return array_values($group);
+        }, array_values($groups));
+    }
+
+    /**
+     * Cuts a sorted group into weekly runs and loose dates.
+     *
+     * @param list<array{day: string, start: DateTimeImmutable, end: DateTimeImmutable}> $group
+     * @param list<array{row: array<string, mixed>, label: string}>                     $series
+     * @param list<array{row: array<string, mixed>, label: string}>                     $single
+     */
+    private function split(array $group, array &$series, array &$single): void
+    {
+        $count = count($group);
+        $index = 0;
+
+        while ($index < $count) {
+            $run = $this->weeklyRunEnd($group, $index);
+
+            if ($run > $index) {
+                $series[] = $this->weeklyEntry($group[$index], $group[$run], $this->gapDays($group[$index]['day'], $group[$index + 1]['day']));
+                $index    = $run + 1;
                 continue;
             }
-            if ($gap !== $diff) {
-                return null;
-            }
+
+            $single[] = $this->singleEntry($group[$index]);
+            $index++;
         }
-
-        if ($gap === null || $gap < 7 || $gap % 7 !== 0) {
-            return null;
-        }
-
-        $first = $unique[0];
-        $last  = $unique[count($unique) - 1];
-        $weekday = (int) $first['start']->format('N');
-
-        return [
-            'repeat'         => 'byWeek',
-            'date'           => $first['start']->format('Y-m-d'),
-            'untilDate'      => $last['start']->format('Y-m-d'),
-            'weeksInterval'  => (int) ($gap / 7),
-            'weekDays'       => [self::WEEKDAYS[$weekday]],
-            'startTime'      => $first['start']->format('H:i:s'),
-            'endTime'        => $first['end']->format('H:i:s'),
-        ];
     }
 
     /**
-     * @return array<string, mixed>
-     */
-    private function singleRow(DateTimeImmutable $start, DateTimeImmutable $end): array
-    {
-        return [
-            'repeat'    => 'no',
-            'date'      => $start->format('Y-m-d'),
-            'untilDate' => $start->format('Y-m-d'),
-            'startTime' => $start->format('H:i:s'),
-            'endTime'   => $end->format('H:i:s'),
-        ];
-    }
-
-    /**
-     * Future dates first, then the most recent past dates.
+     * Last index of the weekly run starting at $from, or $from when no run of three exists.
      *
-     * @param list<array<string, mixed>> $rows
-     * @return list<array<string, mixed>>
+     * @param list<array{day: string, start: DateTimeImmutable, end: DateTimeImmutable}> $group
      */
-    private function soonest(array $rows): array
+    private function weeklyRunEnd(array $group, int $from): int
     {
-        $today = new DateTimeImmutable('today', new DateTimeZone('Europe/Stockholm'));
-        $todayKey = $today->format('Y-m-d');
+        $count = count($group);
+        if ($from + self::MIN_SERIES > $count) {
+            return $from;
+        }
 
+        $gap = $this->gapDays($group[$from]['day'], $group[$from + 1]['day']);
+        if ($gap < 7 || $gap % 7 !== 0) {
+            return $from;
+        }
+
+        $last = $from + 1;
+        while ($last + 1 < $count && $this->gapDays($group[$last]['day'], $group[$last + 1]['day']) === $gap) {
+            $last++;
+        }
+
+        return $last - $from + 1 >= self::MIN_SERIES ? $last : $from;
+    }
+
+    private function gapDays(string $from, string $to): int
+    {
+        $utc = new DateTimeZone('UTC');
+        $a   = DateTimeImmutable::createFromFormat('!Y-m-d', $from, $utc);
+        $b   = DateTimeImmutable::createFromFormat('!Y-m-d', $to, $utc);
+
+        return (int) (($b->getTimestamp() - $a->getTimestamp()) / 86400);
+    }
+
+    /**
+     * @param array{day: string, start: DateTimeImmutable, end: DateTimeImmutable} $first
+     * @param array{day: string, start: DateTimeImmutable, end: DateTimeImmutable} $last
+     * @return array{row: array<string, mixed>, label: string}
+     */
+    private function weeklyEntry(array $first, array $last, int $gap): array
+    {
+        return [
+            'row'   => [
+                'repeat'        => 'byWeek',
+                'date'          => $first['day'],
+                'untilDate'     => $last['day'],
+                'weeksInterval' => intdiv($gap, 7),
+                'weekDays'      => [self::WEEKDAYS[(int) $first['start']->format('N')]],
+                'startTime'     => $first['start']->format('H:i:s'),
+                'endTime'       => $first['end']->format('H:i:s'),
+            ],
+            'label' => sprintf('weekly %s..%s %s', $first['day'], $last['day'], $first['start']->format('H:i')),
+        ];
+    }
+
+    /**
+     * @param array{day: string, start: DateTimeImmutable, end: DateTimeImmutable} $date
+     * @return array{row: array<string, mixed>, label: string}
+     */
+    private function singleEntry(array $date): array
+    {
+        return [
+            'row'   => [
+                'repeat'    => 'no',
+                'date'      => $date['day'],
+                'untilDate' => $date['end']->format('Y-m-d'),
+                'startTime' => $date['start']->format('H:i:s'),
+                'endTime'   => $date['end']->format('H:i:s'),
+            ],
+            'label' => $date['start']->format('Y-m-d H:i'),
+        ];
+    }
+
+    /**
+     * Upcoming dates first in date order, then the most recent past dates.
+     *
+     * @param list<array{row: array<string, mixed>, label: string}> $entries
+     * @return list<array{row: array<string, mixed>, label: string}>
+     */
+    private function rank(array $entries, string $today): array
+    {
         $future = [];
         $past   = [];
-        foreach ($rows as $row) {
-            if ((string) $row['date'] >= $todayKey) {
-                $future[] = $row;
+        foreach ($entries as $entry) {
+            if ($entry['row']['untilDate'] >= $today) {
+                $future[] = $entry;
             } else {
-                $past[] = $row;
+                $past[] = $entry;
             }
         }
 
-        usort($future, static fn (array $a, array $b): int => strcmp((string) $a['date'], (string) $b['date']));
-        usort($past, static fn (array $a, array $b): int => strcmp((string) $b['date'], (string) $a['date']));
+        usort($future, static fn (array $a, array $b): int => strcmp($a['row']['date'], $b['row']['date']));
+        usort($past, static fn (array $a, array $b): int => strcmp($b['row']['date'], $a['row']['date']));
 
         return array_merge($future, $past);
     }

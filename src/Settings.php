@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace VastsverigeEvents;
 
+use VastsverigeEvents\Import\Runner;
+
 /**
  * Settings screen for the API source.
  */
@@ -88,7 +90,32 @@ class Settings
                 </table>
                 <?php submit_button(); ?>
             </form>
+            <?php $this->renderLastRun(); ?>
         </div>
+        <?php
+    }
+
+    private function renderLastRun(): void
+    {
+        $last = get_option(Runner::LAST_RUN_OPTION);
+        if (! is_array($last) || empty($last['time'])) {
+            return;
+        }
+
+        ?>
+        <h2><?php echo esc_html__('Senaste import', 'vastsverige-events'); ?></h2>
+        <p>
+            <?php echo esc_html(wp_date('Y-m-d H:i', (int) $last['time'])); ?> —
+            <strong><?php echo ! empty($last['ok']) ? esc_html__('Lyckades', 'vastsverige-events') : esc_html__('Misslyckades', 'vastsverige-events'); ?></strong>
+            (<?php echo esc_html((string) ($last['summary'] ?? '')); ?>)
+        </p>
+        <?php if (! empty($last['messages']) && is_array($last['messages'])) : ?>
+            <ul class="ul-disc">
+                <?php foreach ($last['messages'] as $message) : ?>
+                    <li><?php echo esc_html((string) $message); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
         <?php
     }
 }

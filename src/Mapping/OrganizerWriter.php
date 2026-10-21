@@ -10,32 +10,34 @@ namespace VastsverigeEvents\Mapping;
 class OrganizerWriter
 {
     /**
-     * @param array<string, mixed> $contact
+     * Assigns the organization described by the contact, or clears it when the contact is empty.
+     *
+     * @param array<string, string> $contact Keys: name, email, phone, website, address.
+     * @return bool False when the term could not be stored.
      */
-    public function assign(int $postId, array $contact): void
+    public function assign(int $postId, array $contact): bool
     {
-        $name = trim((string) ($contact['CompanyName'] ?? ''));
+        $name = trim($contact['name'] ?? '');
         if ($name === '') {
-            $name = trim((string) ($contact['Email'] ?? ''));
-        }
-        if ($name === '') {
-            return;
+            wp_set_object_terms($postId, [], 'organization', false);
+            update_field('organization', [], $postId);
+            return true;
         }
 
         $termId = $this->termId($name);
         if ($termId === 0) {
-            return;
+            return false;
         }
 
-        $this->updateTerm($termId, 'email', (string) ($contact['Email'] ?? ''));
-        $this->updateTerm($termId, 'telephone', (string) ($contact['Phone'] ?? ''));
-        $this->updateTerm($termId, 'url', (string) ($contact['Website'] ?? ''));
-        $this->updateTerm($termId, 'address', trim((string) ($contact['City'] ?? '')));
+        $this->updateTerm($termId, 'email', $contact['email'] ?? '');
+        $this->updateTerm($termId, 'telephone', $contact['phone'] ?? '');
+        $this->updateTerm($termId, 'url', $contact['website'] ?? '');
+        $this->updateTerm($termId, 'address', $contact['address'] ?? '');
 
         wp_set_object_terms($postId, [$termId], 'organization', false);
-        if (function_exists('update_field')) {
-            update_field('organization', [$termId], $postId);
-        }
+        update_field('organization', [$termId], $postId);
+
+        return true;
     }
 
     private function termId(string $name): int
@@ -47,10 +49,7 @@ class OrganizerWriter
 
         $created = wp_insert_term($name, 'organization');
         if (is_wp_error($created)) {
-            if ($created->get_error_code() === 'term_exists') {
-                return (int) $created->get_error_data();
-            }
-            return 0;
+            return $created->get_error_code() === 'term_exists' ? (int) $created->get_error_data() : 0;
         }
 
         return (int) ($created['term_id'] ?? 0);
@@ -58,7 +57,7 @@ class OrganizerWriter
 
     private function updateTerm(int $termId, string $field, string $value): void
     {
-        if ($value === '' || ! function_exists('update_field')) {
+        if ($value === '') {
             return;
         }
 

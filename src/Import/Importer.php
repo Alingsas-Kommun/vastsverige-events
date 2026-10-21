@@ -4,322 +4,191 @@ declare(strict_types=1);
 
 namespace VastsverigeEvents\Import;
 
-use DateTimeImmutable;
-use VastsverigeEvents\Api\Client;
+use VastsverigeEvents\Api\ApiException;
+use VastsverigeEvents\Api\EventSource;
 use VastsverigeEvents\ImportReport;
-use VastsverigeEvents\Mapping\EventWriter;
-use VastsverigeEvents\Options;
-use WP_Error;
+use VastsverigeEvents\Mapping\EventRepository;
+use VastsverigeEvents\Mapping\SaveResult;
 
 /**
- * Fetches Västsverige events and writes Event Manager posts.
+ * Fetches Västsverige events and writes them as Event Manager posts.
+ *
+ * Posts are only trashed after a full run in which every request succeeded.
  */
 class Importer
 {
-    private const PUBLIC_HOST = 'https://www.vastsverige.com';
-
     public function __construct(
-        private Options $options = new Options(),
-        private OccasionFolder $occasions = new OccasionFolder(),
-        private EventWriter $writer = new EventWriter(),
+        private EventSource $source,
+        private EventRepository $repository,
+        private EventMerger $merger,
+        private TrashGuard $guard,
+        private string $configId,
+        private string $newPostStatus = 'publish',
     ) {
     }
 
     /**
-     * @param int|null    $limit   Maximum merged events to write. Disables trashing.
-     * @param string|null $heading Optional case-insensitive title filter.
+     * @param int|null    $limit          Maximum merged events to write. Disables trashing.
+     * @param string|null $heading        Case-insensitive title filter. Disables trashing.
+     * @param bool        $allowMassTrash Skip the safety limit on how many events one run may trash.
      */
-    public function run(?int $limit = null, ?string $heading = null): ImportReport
+    public function run(?int $limit = null, ?string $heading = null, bool $allowMassTrash = false): ImportReport
     {
         $report = new ImportReport();
 
-        if (! post_type_exists('event')) {
-            $report->fail('Post type "event" is not registered. Activate Event Manager on this site.');
+        if (! $this->repository->isAvailable()) {
+            $report->fail('Event Manager is not active on this site.');
             return $report;
         }
 
-        $this->allowOrganizationTerms();
-        $client     = new Client($this->options->apiUrl());
-        $listed     = $client->listIds($this->options->configId());
-        if ($listed instanceof WP_Error) {
-            $report->fail('Id list failed: ' . $listed->get_error_message());
+        try {
+            $list = $this->source->listIds($this->configId);
+        } catch (ApiException $exception) {
+            $report->fail('Id list failed: ' . $exception->getMessage());
             return $report;
         }
 
-        $categories = $client->categories();
-        $failedIds  = [];
-        $groups     = [];
+        $categories = $this->categories($report);
+        $groups     = $this->fetchGroups($list->ids, $heading, $report, $failedIds);
 
-        foreach ($listed as $id) {
-            $detail = $client->detail($id);
-            if ($detail instanceof WP_Error) {
-                $failedIds[] = (string) $id;
-                $report->add(sprintf('Detail %d failed: %s', $id, $detail->get_error_message()));
-                continue;
-            }
-            if ($detail === null) {
-                $report->skipped++;
-                continue;
-            }
-
-            $title = trim(wp_strip_all_tags((string) ($detail['Heading'] ?? '')));
-            if ($title === '') {
-                $report->skipped++;
-                continue;
-            }
-            if ($heading !== null && $heading !== '' && ! str_contains(mb_strtolower($title), mb_strtolower($heading))) {
-                continue;
-            }
-
-            $groups[$title][] = $detail;
+        $events = [];
+        foreach ($groups as $details) {
+            $events[] = $this->merger->merge($details, $categories);
         }
 
-        $merged = [];
-        foreach ($groups as $title => $details) {
-            $merged[] = $this->merge($title, $details, $categories);
-        }
-
-        usort($merged, static fn (array $a, array $b): int => strcmp($a['uid'], $b['uid']));
+        usort($events, static fn (MergedEvent $a, MergedEvent $b): int => (int) ($a->sourceIds[0] ?? 0) <=> (int) ($b->sourceIds[0] ?? 0));
         if ($limit !== null && $limit > 0) {
-            $merged = array_slice($merged, 0, $limit);
+            $events = array_slice($events, 0, $limit);
         }
 
-        foreach ($merged as $event) {
-            try {
-                $action = $this->writer->save($event, $this->options->postStatus());
-            } catch (\RuntimeException $exception) {
-                $report->fail(sprintf('"%s" was not saved: %s', $event['title'], $exception->getMessage()));
-                continue;
-            }
-
-            if ($action === 'created') {
-                $report->created++;
-            } else {
-                $report->updated++;
-            }
-            if ($event['dropped'] > 0) {
-                $report->add(sprintf('"%s" dropped %d occasion rows above the limit of %d.', $event['title'], $event['dropped'], OccasionFolder::MAX_ROWS));
-            }
+        foreach ($events as $event) {
+            $this->write($event, $report);
         }
 
-        $complete = ($limit === null || $limit === 0)
-            && ($heading === null || $heading === '')
-            && $failedIds === []
-            && $report->ok;
-        if ($complete) {
-            $report->trashed = $this->trashMissing($listed);
+        $partial = ($limit !== null && $limit > 0) || ($heading !== null && $heading !== '');
+        if ($partial) {
+            return $report;
         }
+
+        if ($failedIds !== []) {
+            $report->add(sprintf('Trashing skipped: %d detail requests failed.', count($failedIds)));
+            return $report;
+        }
+
+        if (! $list->isComplete()) {
+            $report->add(sprintf('Trashing skipped: the API reports %d events but listed %d.', (int) $list->total, count($list->ids)));
+            return $report;
+        }
+
+        if (! $report->ok) {
+            $report->add('Trashing skipped: some events were not saved.');
+            return $report;
+        }
+
+        $this->trashMissing($list->ids, $allowMassTrash, $report);
 
         return $report;
     }
 
     /**
-     * @param list<array<string, mixed>> $details
-     * @param array<int, string>         $categories
-     * @return array<string, mixed>
+     * @return array<int, string>|null Null when the labels could not be fetched.
      */
-    private function merge(string $title, array $details, array $categories): array
-    {
-        $sourceIds = [];
-        $dates     = [];
-        $content   = '';
-        $url       = '';
-        $city      = '';
-        $lat       = '';
-        $lng       = '';
-        $image     = '';
-        $booking   = '';
-        $contact   = [];
-        $names     = [];
-        $eventEnd  = null;
-
-        foreach ($details as $detail) {
-            if ($eventEnd === null && ! empty($detail['End'])) {
-                $eventEnd = $this->time((string) $detail['End']);
-            }
-        }
-
-        foreach ($details as $detail) {
-            $sourceIds[] = (string) (int) ($detail['Id'] ?? 0);
-            if ($content === '' && ! empty($detail['Description'])) {
-                $content = (string) $detail['Description'];
-            }
-            if ($url === '' && ! empty($detail['Url'])) {
-                $url = $this->publicUrl((string) $detail['Url']);
-            }
-            if ($city === '') {
-                $city = trim((string) ($detail['City'] ?? ''));
-            }
-            if ($lat === '' && isset($detail['Position']['lat'], $detail['Position']['lng'])) {
-                $lat = (string) $detail['Position']['lat'];
-                $lng = (string) $detail['Position']['lng'];
-            }
-            if ($image === '' && ! empty($detail['Image']['Path'])) {
-                $image = $this->absoluteUrl((string) $detail['Image']['Path']);
-            }
-            if ($booking === '' && ! empty($detail['Contact']['BookingLink'])) {
-                $booking = (string) $detail['Contact']['BookingLink'];
-            }
-            if ($contact === [] && is_array($detail['Contact'] ?? null)) {
-                $contact = $detail['Contact'];
-            }
-            foreach ($detail['Categories']['Event'] ?? [] as $categoryId) {
-                $label = $categories[(int) $categoryId] ?? '';
-                if ($label !== '') {
-                    $names[$label] = $label;
-                }
-            }
-            foreach ($detail['Dates'] ?? [] as $date) {
-                if (! is_array($date) || empty($date['Date'])) {
-                    continue;
-                }
-                $start = $this->time((string) $date['Date']);
-                if ($start === null) {
-                    continue;
-                }
-                $end = $this->dateEnd($date, $start, $eventEnd);
-                $dates[] = ['start' => $start, 'end' => $end];
-            }
-        }
-
-        $sourceIds = array_values(array_filter(array_unique($sourceIds), static fn (string $id): bool => $id !== '0'));
-        sort($sourceIds, SORT_NATURAL);
-        $canonical = $sourceIds[0] ?? '0';
-        $folded    = $this->occasions->fold($dates);
-
-        return [
-            'title'      => $title,
-            'content'    => $content,
-            'url'        => $url,
-            'city'       => $city,
-            'lat'        => $lat,
-            'lng'        => $lng,
-            'image'      => $image,
-            'categories' => array_values($names),
-            'contact'    => $contact,
-            'booking'    => $booking,
-            'occasions'  => $folded['rows'],
-            'dropped'    => $folded['dropped'],
-            'uid'        => $this->uid($canonical),
-            'sourceIds'  => $sourceIds,
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $date
-     */
-    private function dateEnd(array $date, DateTimeImmutable $start, ?DateTimeImmutable $eventEnd): DateTimeImmutable
-    {
-        foreach (['End', 'end', 'EndDate'] as $key) {
-            if (! empty($date[$key])) {
-                $parsed = $this->time((string) $date[$key]);
-                if ($parsed !== null) {
-                    return $parsed;
-                }
-            }
-        }
-
-        if ($eventEnd !== null && $eventEnd->format('Y-m-d') === $start->format('Y-m-d')) {
-            return $eventEnd;
-        }
-
-        return $start;
-    }
-
-    private function time(string $value): ?DateTimeImmutable
+    private function categories(ImportReport $report): ?array
     {
         try {
-            return new DateTimeImmutable($value);
-        } catch (\Exception) {
+            return $this->source->categories();
+        } catch (ApiException $exception) {
+            $report->add('Categories unavailable, existing categories are kept: ' . $exception->getMessage());
             return null;
         }
     }
 
-    private function publicUrl(string $path): string
+    /**
+     * Fetches every detail and groups them by heading.
+     *
+     * @param list<int>         $ids
+     * @param list<string>|null $failedIds Filled with ids whose detail request failed.
+     * @return array<string, list<array<string, mixed>>>
+     */
+    private function fetchGroups(array $ids, ?string $heading, ImportReport $report, ?array &$failedIds): array
     {
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
+        $failedIds = [];
+        $groups    = [];
+        $needle    = $heading !== null && $heading !== '' ? mb_strtolower($heading) : null;
+
+        foreach ($ids as $id) {
+            try {
+                $detail = $this->source->detail($id);
+            } catch (ApiException $exception) {
+                $failedIds[] = (string) $id;
+                $report->add(sprintf('Detail %d failed: %s', $id, $exception->getMessage()));
+                continue;
+            }
+
+            $title = $detail === null ? '' : EventMerger::cleanTitle((string) ($detail['Heading'] ?? ''));
+            if ($title === '') {
+                $report->skipped++;
+                continue;
+            }
+
+            if ($needle !== null && ! str_contains(mb_strtolower($title), $needle)) {
+                continue;
+            }
+
+            $groups[EventMerger::groupKey($title)][] = $detail;
         }
 
-        return self::PUBLIC_HOST . (str_starts_with($path, '/') ? $path : '/' . $path);
+        return $groups;
     }
 
-    private function absoluteUrl(string $path): string
+    private function write(MergedEvent $event, ImportReport $report): void
     {
-        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
-            return $path;
+        try {
+            $result = $this->repository->save($event, $this->newPostStatus);
+        } catch (\RuntimeException $exception) {
+            $report->fail(sprintf('"%s" was not saved: %s', $event->title, $exception->getMessage()));
+            return;
         }
 
-        $parts  = wp_parse_url($this->options->apiUrl());
-        $origin = ($parts['scheme'] ?? 'https') . '://' . ($parts['host'] ?? 'www.vastsverige.com');
-        if (str_starts_with($path, '//')) {
-            return 'https:' . $path;
+        match ($result->action) {
+            SaveResult::CREATED   => $report->created++,
+            SaveResult::UPDATED   => $report->updated++,
+            SaveResult::UNCHANGED => $report->unchanged++,
+            default               => $report->skipped++,
+        };
+
+        foreach ($result->warnings as $warning) {
+            $report->add(sprintf('"%s": %s', $event->title, $warning));
         }
 
-        return $origin . (str_starts_with($path, '/') ? $path : '/' . $path);
-    }
-
-    private function uid(string $canonicalId): string
-    {
-        $short = substr(md5($this->options->apiUrl()), 0, 8);
-        return 'vast-sverige-' . $short . '-' . $canonicalId;
+        if ($event->dropped !== []) {
+            $report->add(
+                sprintf(
+                    '"%s" dropped %d occasion rows above the limit of %d: %s',
+                    $event->title,
+                    count($event->dropped),
+                    OccasionFolder::MAX_ROWS,
+                    implode(', ', $event->dropped)
+                )
+            );
+        }
     }
 
     /**
      * @param list<int> $listedIds
      */
-    private function trashMissing(array $listedIds): int
+    private function trashMissing(array $listedIds, bool $allowMassTrash, ImportReport $report): void
     {
-        $keep = array_fill_keys(array_map('strval', $listedIds), true);
-        $posts = get_posts(
-            [
-                'post_type'      => 'event',
-                'post_status'    => ['publish', 'draft', 'pending', 'private', 'future'],
-                'posts_per_page' => -1,
-                'fields'         => 'ids',
-                'meta_key'       => '_vastsverige_uid',
-            ]
-        );
+        $plan = $this->guard->plan($this->repository->managedPosts(), $listedIds, $allowMassTrash);
 
-        $trashed = 0;
-        foreach ($posts as $postId) {
-            $sourceIds = get_post_meta((int) $postId, '_vastsverige_source_id', false);
-            $present   = false;
-            foreach ($sourceIds as $sourceId) {
-                if (isset($keep[(string) $sourceId])) {
-                    $present = true;
-                    break;
-                }
-            }
-            if ($present) {
-                continue;
-            }
-            wp_trash_post((int) $postId);
-            $trashed++;
+        if ($plan->refusal !== null) {
+            $report->fail($plan->refusal);
+            return;
         }
 
-        return $trashed;
-    }
-
-    /**
-     * Organization terms use capabilities the administrator role does not store directly.
-     */
-    private function allowOrganizationTerms(): void
-    {
-        add_filter(
-            'user_has_cap',
-            static function (array $allcaps, array $caps, array $args, \WP_User $user): array {
-                $isAdmin = in_array('administrator', $user->roles, true) || is_super_admin($user->ID);
-                if (! $isAdmin) {
-                    return $allcaps;
-                }
-                foreach (['manage_organization', 'edit_organization', 'assign_organization', 'delete_organization'] as $cap) {
-                    $allcaps[$cap] = true;
-                }
-                return $allcaps;
-            },
-            10,
-            4
-        );
+        foreach ($plan->postIds as $postId) {
+            $this->repository->trash($postId);
+            $report->trashed++;
+        }
     }
 }

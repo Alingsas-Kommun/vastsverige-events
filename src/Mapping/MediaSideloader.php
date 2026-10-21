@@ -10,12 +10,15 @@ namespace VastsverigeEvents\Mapping;
 class MediaSideloader
 {
     /**
-     * Sideload an image and return the attachment id.
+     * Sideloads an image, or reuses the attachment made for the same source url.
+     *
+     * @return int Attachment id, or 0 when the download failed.
      */
-    public function sideload(string $url, int $postId, string $title): int
+    public function sideload(string $url, int $postId, string $alt): int
     {
         $existing = $this->existingAttachment($url);
         if ($existing > 0) {
+            update_post_meta($existing, '_wp_attachment_image_alt', $alt);
             return $existing;
         }
 
@@ -32,11 +35,7 @@ class MediaSideloader
             return 0;
         }
 
-        $path = (string) (wp_parse_url($clean, PHP_URL_PATH) ?: 'event.jpg');
-        $name = sanitize_file_name(basename($path));
-        if ($name === '') {
-            $name = 'event.jpg';
-        }
+        $name = sanitize_file_name(self::fileName((string) wp_parse_url($clean, PHP_URL_PATH)));
 
         $attachmentId = media_handle_sideload(
             [
@@ -44,7 +43,7 @@ class MediaSideloader
                 'tmp_name' => $tmp,
             ],
             $postId,
-            $title
+            $alt
         );
 
         if (is_wp_error($attachmentId)) {
@@ -52,10 +51,23 @@ class MediaSideloader
             return 0;
         }
 
-        update_post_meta((int) $attachmentId, '_wp_attachment_image_alt', $title);
+        update_post_meta((int) $attachmentId, '_wp_attachment_image_alt', $alt);
         update_post_meta((int) $attachmentId, '_vastsverige_source_url', $url);
 
         return (int) $attachmentId;
+    }
+
+    /**
+     * File name for the media library. JPEG variants WordPress does not accept (such as .jfif) become .jpg.
+     */
+    public static function fileName(string $urlPath): string
+    {
+        $name = basename($urlPath);
+        if ($name === '' || $name === '.' || $name === '/') {
+            return 'event.jpg';
+        }
+
+        return (string) preg_replace('/\.(jfif|jfif-tbnl|pjpeg|pjp)$/i', '.jpg', $name);
     }
 
     private function existingAttachment(string $url): int

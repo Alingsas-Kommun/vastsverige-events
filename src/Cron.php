@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace VastsverigeEvents;
 
+use VastsverigeEvents\Import\Runner;
+
 /**
  * Hourly import when the setting is enabled.
  */
@@ -43,8 +45,13 @@ class Cron
     public function run(): void
     {
         if (! Actor::set()) {
+            error_log('[vastsverige-events] No administrator available to own imported posts.');
             return;
         }
-        (new Import\Importer())->run();
+
+        $report = (new Runner())->run();
+        if (! $report->ok) {
+            error_log('[vastsverige-events] Import failed: ' . implode(' | ', $report->messages));
+        }
     }
 }

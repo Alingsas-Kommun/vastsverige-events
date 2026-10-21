@@ -4,40 +4,41 @@ declare(strict_types=1);
 
 namespace VastsverigeEvents\Api;
 
-use WP_Error;
-
 /**
  * HTTP client for the Västsverige event API.
  */
-class Client
+class Client implements EventSource
 {
-    private const TIMEOUT = 60;
+    private const TIMEOUT   = 60;
+    private const PAGE_SIZE = 100;
+    private const MAX_PAGES = 100;
+    private const ATTEMPTS  = 2;
 
     public function __construct(private string $baseUrl)
     {
     }
 
     /**
-     * Page through event ids.
+     * Pages through all event ids.
      *
-     * @return list<int>|WP_Error
+     * @throws ApiException On transport failure, an unusable payload, a stalled pagination or the page cap.
      */
-    public function listIds(string $configId): array|WP_Error
+    public function listIds(string $configId): IdList
     {
-        $ids  = [];
-        $skip = 0;
-        $take = 100;
+        $seen  = [];
+        $total = null;
+        $skip  = 0;
 
-        for ($page = 0; $page < 100; $page++) {
-            $response = wp_remote_post(
+        for ($page = 0; $page < self::MAX_PAGES; $page++) {
+            $body = $this->request(
+                'POST',
                 $this->baseUrl . '/get/' . rawurlencode($configId),
                 [
-                    'timeout' => self::TIMEOUT,
                     'headers' => ['Content-Type' => 'application/json'],
                     'body'    => wp_json_encode(
                         [
                             'Query'       => '',
-                            'Take'        => $take,
+                            'Take'        => self::PAGE_SIZE,
                             'Sort'        => 'Date',
                             'Skip'        => $skip,
                             'SearchTypes' => 'event',
@@ -48,87 +49,79 @@ class Client
                 ]
             );
 
-            if (is_wp_error($response)) {
-                return $response;
-            }
+            $parsed = Payload::idPage($body);
+            $total  = $parsed['total'] ?? $total;
 
-            $code = (int) wp_remote_retrieve_response_code($response);
-            if ($code >= 400) {
-                return new WP_Error('vastsverige_list', sprintf('Id list request failed with HTTP %d.', $code));
-            }
-
-            $payload = json_decode((string) wp_remote_retrieve_body($response), true);
-            $batch   = is_array($payload['IDs'] ?? null) ? $payload['IDs'] : [];
-            foreach ($batch as $id) {
-                if (is_numeric($id)) {
-                    $ids[] = (int) $id;
+            $fresh = 0;
+            foreach ($parsed['ids'] as $id) {
+                if (! isset($seen[$id])) {
+                    $seen[$id] = true;
+                    $fresh++;
                 }
             }
 
-            if (count($batch) < $take) {
-                break;
+            if (count($parsed['ids']) < self::PAGE_SIZE) {
+                return new IdList(array_keys($seen), $total);
             }
 
-            $skip += $take;
+            if ($fresh === 0) {
+                throw new ApiException('Id list pagination did not advance.');
+            }
+
+            $skip += self::PAGE_SIZE;
         }
 
-        return array_values(array_unique($ids));
+        throw new ApiException(sprintf('Id list exceeded %d pages.', self::MAX_PAGES));
     }
 
     /**
-     * @return array<string, mixed>|null|WP_Error Null when the detail body is empty.
+     * @return array<string, mixed>|null
+     * @throws ApiException
      */
-    public function detail(int $id): array|null|WP_Error
+    public function detail(int $id): ?array
     {
-        $response = wp_remote_get(
-            $this->baseUrl . '/detail/sv/' . $id,
-            ['timeout' => self::TIMEOUT]
-        );
-
-        if (is_wp_error($response)) {
-            return $response;
-        }
-
-        $code = (int) wp_remote_retrieve_response_code($response);
-        if ($code >= 400) {
-            return new WP_Error('vastsverige_detail', sprintf('Detail %d failed with HTTP %d.', $id, $code));
-        }
-
-        $payload = json_decode((string) wp_remote_retrieve_body($response), true);
-        return is_array($payload) && $payload !== [] ? $payload : null;
+        return Payload::detail($this->request('GET', $this->baseUrl . '/detail/sv/' . $id));
     }
 
     /**
-     * Category group 73, id to label.
-     *
      * @return array<int, string>
+     * @throws ApiException
      */
     public function categories(): array
     {
-        $response = wp_remote_get($this->baseUrl . '/categories', ['timeout' => self::TIMEOUT]);
-        if (is_wp_error($response)) {
-            return [];
-        }
+        return Payload::categories($this->request('GET', $this->baseUrl . '/categories'));
+    }
 
-        $payload = json_decode((string) wp_remote_retrieve_body($response), true);
-        if (! is_array($payload)) {
-            return [];
-        }
+    /**
+     * @param array<string, mixed> $args
+     * @throws ApiException
+     */
+    private function request(string $method, string $url, array $args = []): string
+    {
+        $args    += ['timeout' => self::TIMEOUT, 'method' => $method];
+        $failure  = '';
 
-        $map = [];
-        foreach ($payload as $group) {
-            if (! is_array($group) || (int) ($group['id'] ?? 0) !== 73) {
-                continue;
-            }
-            foreach ($group['categories'] ?? [] as $category) {
-                if (! is_array($category) || ! isset($category['id'], $category['text'])) {
-                    continue;
+        for ($attempt = 1; $attempt <= self::ATTEMPTS; $attempt++) {
+            $response = wp_remote_request($url, $args);
+
+            if (is_wp_error($response)) {
+                $failure = $response->get_error_message();
+            } else {
+                $code = (int) wp_remote_retrieve_response_code($response);
+                if ($code < 400) {
+                    return (string) wp_remote_retrieve_body($response);
                 }
-                $map[(int) $category['id']] = (string) $category['text'];
+                $failure = sprintf('HTTP %d', $code);
+                if ($code < 500) {
+                    break;
+                }
             }
-            break;
+
+            if ($attempt < self::ATTEMPTS) {
+                usleep(500000);
+            }
         }
 
-        return $map;
+        throw new ApiException(sprintf('%s %s failed: %s', $method, $url, $failure));
     }
 }
