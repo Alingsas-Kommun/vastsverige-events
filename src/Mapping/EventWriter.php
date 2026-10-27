@@ -220,7 +220,17 @@ class EventWriter implements EventRepository
         update_field('attendancemode', 'offline', $postId);
         update_field('url', $event->url, $postId);
         update_field('locationName', $event->locationName, $postId);
+        update_field('locationAddress', self::locationAddress($event), $postId);
+    }
 
+    /**
+     * Value passed to ACF for the locationAddress google_map field.
+     *
+     * Encoded as JSON so third-party acf/update_value/type=google_map filters
+     * that type-hint string input do not throw before ACF decodes the map array.
+     */
+    public static function locationAddress(MergedEvent $event): string
+    {
         $map = [];
         if ($event->address !== '') {
             $map['address'] = $event->address;
@@ -230,7 +240,11 @@ class EventWriter implements EventRepository
             $map['lng']  = $event->lng;
             $map['zoom'] = 14;
         }
-        update_field('locationAddress', $map === [] ? '' : $map, $postId);
+        if ($map === []) {
+            return '';
+        }
+
+        return str_replace('\\', '\\\\', (string) json_encode($map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     /**
