@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Västsverige Events
  * Description: Imports events from Västsverige into Event Manager posts.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: Alingsås kommun
  * Text Domain: vastsverige-events
  *
